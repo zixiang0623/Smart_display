@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Now Clock Neo</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f1220;
+  color: white;
+}
+
+#clock {
+  display: flex;
+  font-size: 60px;
+  line-height: 1.3;
+}
+
+/* ===== 数字アニメ用 ===== */
+.digit {
+  position: relative;
+  width: 0.65em;
+  height: 1.2em;
+  overflow: hidden;
+}
+
+.digit span {
+  position: absolute;
+  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.separator {
+  width: 0.4em;
+  text-align: center;
+}
+
+.old {
+  animation: slideOut 0.35s forwards;
+}
+
+.new {
+  animation: slideIn 0.35s forwards;
+}
+
+@keyframes slideOut {
+  from { transform: translate(-50%, 0); opacity: 1; }
+  to   { transform: translate(-50%, -100%); opacity: 0; }
+}
+
+@keyframes slideIn {
+  from { transform: translate(-50%, 100%); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="clock"></div>
+
+<script>
+let prevText = "";
+const clockEl = document.getElementById("clock");
+
+function formatNow() {
+  const now = new Date();
+
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mi = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+
+  return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
+}
+
+function renderClock() {
+  const text = formatNow();
+  clockEl.innerHTML = "";
+
+  [...text].forEach((char, i) => {
+    // 区切り文字は固定表示
+    if (!/\d/.test(char)) {
+      const sep = document.createElement("div");
+      sep.className = "separator";
+      sep.textContent = char;
+      clockEl.appendChild(sep);
+      return;
+    }
+
+    const d = document.createElement("div");
+    d.className = "digit";
+
+    if (prevText[i] === char) {
+      const s = document.createElement("span");
+      s.textContent = char;
+      d.appendChild(s);
+    } else {
+      if (prevText[i]) {
+        const oldSpan = document.createElement("span");
+        oldSpan.textContent = prevText[i];
+        oldSpan.className = "old";
+        d.appendChild(oldSpan);
+      }
+
+      const newSpan = document.createElement("span");
+      newSpan.textContent = char;
+      newSpan.className = "new";
+      d.appendChild(newSpan);
+    }
+
+    clockEl.appendChild(d);
+  });
+
+  prevText = text;
+}
+
+renderClock();
+setInterval(renderClock, 1000);
+</script>
+
+</body>
+</html>
