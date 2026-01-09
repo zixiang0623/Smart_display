@@ -84,6 +84,16 @@ body {
   font-size: 14px;
   opacity: 0.7;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#battery img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  filter: brightness(0) invert(1); /* #ffffff */
 }
 </style>
 </head>
@@ -92,7 +102,10 @@ body {
 
 <div id="clock-wrapper">
   <div id="clock"></div>
-  <div id="battery">🔋 読み込み中…</div>
+  <div id="battery">
+    <img src="battery-warning.svg" alt="battery">
+    <span>読み込み中…</span>
+  </div>
 </div>
 
 <script>
@@ -156,14 +169,24 @@ function renderClock() {
 /* ===== バッテリー処理 ===== */
 function initBattery() {
   if (!navigator.getBattery) {
-    batteryEl.textContent = "🔋 対応していません";
+    batteryEl.innerHTML = `
+      <img src="battery-warning.svg" alt="battery-warning">
+      <span>対応していません</span>
+    `;
     return;
   }
 
   navigator.getBattery().then(battery => {
     function updateBattery() {
       const level = Math.round(battery.level * 100);
-      batteryEl.textContent = `🔋 ${level}%`;
+      const icon = battery.charging
+        ? "battery-charging.svg"
+        : "battery.svg";
+
+      batteryEl.innerHTML = `
+        <img src="${icon}" alt="battery">
+        <span>${level}%</span>
+      `;
     }
 
     updateBattery();
